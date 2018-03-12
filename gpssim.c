@@ -117,8 +117,7 @@ void *recvfromser(void *socket)
     if (ret == -1)
     {
       printf ("Error 3!: %s\n", strerror(errno));
-      //close thread
-
+      close(c);
       return 0;
     }
     else if (ret > 0)
@@ -1988,6 +1987,7 @@ int main(int argc, char *argv[])
     if (self_sock == -1)
     {
       printf ("Error 1!: %s\n", strerror(errno));
+      close(self_sock);
       return 0;
     }
     else
@@ -2000,6 +2000,8 @@ int main(int argc, char *argv[])
     if (ret == -1)
     {
       printf ("Error 2!: %s\n", strerror(errno));
+      close(self_sock);
+      return 0;
     }
     else
     {
@@ -2094,13 +2096,17 @@ int main(int argc, char *argv[])
       int ret = send(self_sock, "ok", sizeof("ok"), 0);
       if (ret == -1)
       {
-        printf ("Error 7!: %s",strerror(errno));
+        printf ("Error 7!: %s\n",strerror(errno));
+        close(self_sock);
+        return 0;
       }
       char first[100];
       ret = recv(self_sock, first, sizeof(first), 0);
       if (ret == -1)
       {
-        printf ("Error 8!: %s",strerror(errno));
+        printf ("Error 8!: %s\n",strerror(errno));
+        close(self_sock);
+        return 0;
       }
       else
       {
@@ -2352,35 +2358,41 @@ int main(int argc, char *argv[])
     // Receive data from server
     //////////////////////////////////////////////////////////
     //---> Send OK to server
-    char *ok = "OK";
-    int ret = send(self_sock, ok, strlen(ok), 0);
-    if (ret == -1)
+    if ((mode == 1) && (strlen(server) > 0))
     {
-      printf ("Error 4!: %s", strerror(errno));
-      return 0;
-    }
-    //---> Wait utill server response coordinates
-    char buff[1024];
-    ret = recv(self_sock,buff,sizeof(buff),0);
-    if (ret > 0)
-    {
-      //extract data
-      double x1 = 0;
-      double y1 = 0;
-      double z1 = 0;
-      printf("%s\n",buff);
-      sscanf(buff, "%lf,%lf,%lf", &x1, &y1, &z1);
-      if ((x1 != 0) && (y1 != 0) && (z1 != 0))
+      char *ok = "OK";
+      int ret = send(self_sock, ok, strlen(ok), 0);
+      if (ret == -1)
       {
-        xyz[iumd][0] = x1;
-        xyz[iumd][1] = y1;
-        xyz[iumd][2] = z1;
+        printf ("Error 4!: %s\n", strerror(errno));
+        close(self_sock);
+        return 0;
       }
+      //---> Wait utill server response coordinates
+      char buff[1024];
+      ret = recv(self_sock,buff,sizeof(buff),0);
+      if (ret > 0)
+      {
+        //extract data
+        double x1 = 0;
+        double y1 = 0;
+        double z1 = 0;
+        printf("%s\n",buff);
+        sscanf(buff, "%lf,%lf,%lf", &x1, &y1, &z1);
+        if ((x1 != 0) && (y1 != 0) && (z1 != 0))
+        {
+          xyz[iumd][0] = x1;
+          xyz[iumd][1] = y1;
+          xyz[iumd][2] = z1;
+        }
 
-    }
-    else
-    {
-      printf("Error 5!: %s", strerror(errno));
+      }
+      else
+      {
+        printf("Error 5!: %s\n", strerror(errno));
+        close(self_sock);
+        return 0;
+      }
     }
     // Press 'q' to abort
     if (_kbhit())
