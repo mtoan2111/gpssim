@@ -26,8 +26,9 @@ Options:
 ###### Offline mode:
 ```
 ./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -T now -i -o <outfile>
+e.g: ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -T now -i -o /tmp/streaming.bin
+
 ```
-e.g:./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -T now -i -o /tmp/streaming.bin
 ###### Note: outfile can be fifo
 ```
 mkfifo mystream
@@ -36,7 +37,8 @@ mkfifo mystream
 ###### Online Mode (Synchronization):
 ```
 ./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -T $(date +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
-```
 e.g: ./gps-sdr-sim -e brdc0710.18n -k 172.20.10.3 -l 1.300519,103.7793489,15 -b 8 -T now -i -o /tmp/streaming.bin
+
+```
 ###### Note: Server must open port "8080" to listen
 
