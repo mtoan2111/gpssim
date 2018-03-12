@@ -29,9 +29,9 @@
 
 /*! \brief Maximum number of user motion points */
 //#ifndef BLADE_GPS
-#define USER_MOTION_SIZE (3000) // max duration at 10Hz
+//#define USER_MOTION_SIZE (3000) // max duration at 10Hz
 //#else
-//#define USER_MOTION_SIZE (864000) // for 24 hours at 10Hz
+#define USER_MOTION_SIZE (864000) // for 24 hours at 10Hz
 //#endif
 
 /*! \brief Number of subframes */
