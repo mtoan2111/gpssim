@@ -24,13 +24,16 @@ Options:
 ```
 ## Offline mode:
 ```
-./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -T $(date + %Y/%m/%d,%H:%M:%S) -i -o <outfile>
+./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -T $(date +%Y/%m/%d,%H:%M:%S) -i -o <outfile>
 ```
 ### Note: outfile can be fifo
-
+```
+mkfifo mystream
+./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -T $(date +%Y/%m/%d,%H:%M:%S) -i -o mystream
+```
 ## Oneline Mode (Synchronization):
 ```
-./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -T $(date + %Y/%m/%d,%H:%M:%S) -i -o <output_file>
+./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -T $(date +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
 ```
 ### Note: Server must open port "8080" to listen
 
