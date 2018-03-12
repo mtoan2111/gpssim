@@ -1,10 +1,10 @@
 # GPS Simulator
-#How To Compile
+# How To Compile
 ```
 gcc gpssim.c -lm -lpthread -g -O3 -o gps-sdr-sim
 ```
-#How To Use
-##Usage: gps-sdr-sim [options]
+# How To Use
+## Usage: gps-sdr-sim [options]
 ```
 Options:
   -e <gps_nav>     RINEX navigation file for GPS ephemerides (required)
@@ -22,16 +22,16 @@ Options:
   -m <0,1>         Running Mode: Offline: 0, Online: 1
   -k <address>     Server address, Port 8080
 ```
-##Offline mode:
+## Offline mode:
 ```
 ./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -T $(date + %Y/%m/%d,%H:%M:%S) -i -o <outfile>
 ```
-###Note: outfile can be fifo
+### Note: outfile can be fifo
 
-##Oneline Mode:
+## Oneline Mode (Synchronization):
 ```
 ./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -T $(date + %Y/%m/%d,%H:%M:%S) -i -o <output_file>
 ```
-###Note: Server must open port: 8080 to listen
+### Note: Server must open port "8080" to listen
 
-#This project based on [Software-Defined GPS Signal Simulator Project](https://github.com/osqzss/gps-sdr-sim)
+# This project based on [Software-Defined GPS Signal Simulator Project](https://github.com/osqzss/gps-sdr-sim)
