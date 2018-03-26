@@ -39,8 +39,7 @@ mkfifo mystream
 ./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
 ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o /tmp/mystream
 ```
-```
-###### Note: 
+######  Note: 
 * Server must open port "8080" to listen. An example of server at [here](https://github.com/mtoan2111/gpssim_server.git)
 * Time input must be in UTC format YYYY/MM/DD,hh:mm:ss. The time input is not more than 4 hours compared to the latest time of ephemeris set.
 
