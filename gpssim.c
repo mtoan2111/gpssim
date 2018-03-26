@@ -1781,9 +1781,7 @@ int main(int argc, char *argv[])
   int ip,qp;
   int iTable;
   short *iq_buff = NULL;
-  #ifndef BLADE_GPS
   signed char *iq8_buff = NULL;
-  #endif
 
   gpstime_t grx;
   double delt;
@@ -1824,14 +1822,12 @@ int main(int argc, char *argv[])
 
   ionoutc_t ionoutc;
 
-  //#ifndef BLADE_GPS
   clock_t tstart,tend;
   FILE *fp;
   char outfile[MAX_CHAR];
   double samp_freq;
   double duration;
   int result;
-  //#else
   int interactive = FALSE;
   int key;
   int key_direction;
@@ -1839,7 +1835,6 @@ int main(int argc, char *argv[])
   double velocity = 0.0;
   double tmat[3][3];
   double neu[3];
-  //#endif
 
   ////////////////////////////////////////////////////////////
   // Read options
@@ -2014,9 +2009,7 @@ int main(int argc, char *argv[])
     else
     {
       printf ("Connection is created success\n");
-    }
-//If connection is success -> create new thread to recv coordinates from server
-//
+    } 
   }
 
 
@@ -2142,8 +2135,8 @@ int main(int argc, char *argv[])
     numd = iduration;
   }
 
-  printf("xyz = %11.1f, %11.1f, %11.1f\n", xyz[0][0], xyz[0][1], xyz[0][2]);
-  printf("llh = %11.6f, %11.6f, %11.1f\n", llh[0]*R2D, llh[1]*R2D, llh[2]);
+//  printf("xyz = %11.1f, %11.1f, %11.1f\n", xyz[0][0], xyz[0][1], xyz[0][2]);
+//  printf("llh = %11.6f, %11.6f, %11.1f\n", llh[0]*R2D, llh[1]*R2D, llh[2]);
 
 ////////////////////////////////////////////////////////////
 // Read ephemeris
@@ -2157,16 +2150,16 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  if (ionoutc.vflg==TRUE)
-  {
-    printf("  %12.3e %12.3e %12.3e %12.3e\n",
-    ionoutc.alpha0, ionoutc.alpha1, ionoutc.alpha2, ionoutc.alpha3);
-    printf("  %12.3e %12.3e %12.3e %12.3e\n",
-    ionoutc.beta0, ionoutc.beta1, ionoutc.beta2, ionoutc.beta3);
-    printf("   %19.11e %19.11e  %9d %9d\n",
-    ionoutc.A0, ionoutc.A1, ionoutc.tot, ionoutc.wnt);
-    printf("%6d\n", ionoutc.dtls);
-  }
+//  if (ionoutc.vflg==TRUE)
+//  {
+//    printf("  %12.3e %12.3e %12.3e %12.3e\n",
+//    ionoutc.alpha0, ionoutc.alpha1, ionoutc.alpha2, ionoutc.alpha3);
+//    printf("  %12.3e %12.3e %12.3e %12.3e\n",
+//    ionoutc.beta0, ionoutc.beta1, ionoutc.beta2, ionoutc.beta3);
+//    printf("   %19.11e %19.11e  %9d %9d\n",
+//    ionoutc.A0, ionoutc.A1, ionoutc.tot, ionoutc.wnt);
+//    printf("%6d\n", ionoutc.dtls);
+//  }
 
   for (sv=0; sv<MAX_SAT; sv++)
   {
@@ -2338,9 +2331,9 @@ int main(int argc, char *argv[])
   for(i=0; i<MAX_CHAN; i++)
   {
     if (chan[i].prn>0)
-    printf("%02d %6.1f %5.1f %11.1f %5.1f\n", chan[i].prn,
-    chan[i].azel[0]*R2D, chan[i].azel[1]*R2D, chan[i].rho0.d, chan[i].rho0.iono_delay);
+      printf("%5d", chan[i].prn);
   }
+  printf("\n");
 
   ////////////////////////////////////////////////////////////
   // Receiver antenna gain pattern
@@ -2660,22 +2653,22 @@ int main(int argc, char *argv[])
       allocateChannel(chan, eph[ieph], ionoutc, grx, xyz[iumd], elvmask);
 
       // Show ditails about simulated channels
-      if (verb)
-      {
-        printf("\n");
-        gps2date(&grx, &t0);
-        printf("%4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
-            t0.y, t0.m, t0.d, t0.hh, t0.mm, t0.sec, grx.week, grx.sec);
-        printf("xyz = %11.1f, %11.1f, %11.1f\n", xyz[iumd][0], xyz[iumd][1], xyz[iumd][2]);
-          xyz2llh(xyz[iumd],llh);
-        printf("llh = %11.6f, %11.6f, %11.1f\n", llh[0]*R2D, llh[1]*R2D, llh[2]);
-        for (i=0; i<MAX_CHAN; i++)
-        {
-          if (chan[i].prn>0)
-            printf("%02d %6.1f %5.1f %11.1f %5.1f\n", chan[i].prn,
-                chan[i].azel[0]*R2D, chan[i].azel[1]*R2D, chan[i].rho0.d, chan[i].rho0.iono_delay);
-        }
-      }
+//      if (verb)
+//      {
+//        printf("\n");
+//        gps2date(&grx, &t0);
+//        printf("%4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
+//            t0.y, t0.m, t0.d, t0.hh, t0.mm, t0.sec, grx.week, grx.sec);
+//        printf("xyz = %11.1f, %11.1f, %11.1f\n", xyz[iumd][0], xyz[iumd][1], xyz[iumd][2]);
+//          xyz2llh(xyz[iumd],llh);
+//        printf("llh = %11.6f, %11.6f, %11.1f\n", llh[0]*R2D, llh[1]*R2D, llh[2]);
+//        for (i=0; i<MAX_CHAN; i++)
+//        {
+//          if (chan[i].prn>0)
+//            printf("%02d %6.1f %5.1f %11.1f %5.1f\n", chan[i].prn,
+//                chan[i].azel[0]*R2D, chan[i].azel[1]*R2D, chan[i].rho0.d, chan[i].rho0.iono_delay);
+//        }
+//      }
     }
 
     // Update receiver time

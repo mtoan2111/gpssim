@@ -25,16 +25,32 @@ Options:
 ```
 ###### Offline mode:
 ```
+<<<<<<< HEAD
 ./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o <outfile>
+=======
+./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -T now -i -o <outfile>
+e.g: ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -T now -i -o /tmp/streaming.bin
+
+>>>>>>> 279b0ca89b901a448d6f071691a8bf3e7a7b5c52
 ```
 ###### Note: outfile can be fifo
 ```
 mkfifo mystream
+<<<<<<< HEAD
 ./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o mystream
 ```
 ###### Online Mode (Synchronization):
 ```
 ./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
+=======
+./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -T now -i -o /tmp/mystream
+```
+###### Online Mode (Synchronization):
+```
+./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -T $(date +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
+e.g: ./gps-sdr-sim -e brdc0710.18n -k 172.20.10.3 -l 1.300519,103.7793489,15 -b 8 -T now -i -o /tmp/streaming.bin
+
+>>>>>>> 279b0ca89b901a448d6f071691a8bf3e7a7b5c52
 ```
 ###### Note: Server must open port "8080" to listen
 
