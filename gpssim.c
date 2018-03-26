@@ -443,106 +443,107 @@ void satpos(ephem_t eph, gpstime_t g, double *pos, double *vel, double *clk)
 // http://www.ngs.noaa.gov/gps-toolbox/bc_velo.htm
 
   double tk;
-  double mk;
-  double ek;
-  double ekold;
-  double ekdot;
-  double cek,sek;
-  double pk;
-  double pkdot;
-  double c2pk,s2pk;
-  double uk;
-  double ukdot;
-  double cuk,suk;
-  double ok;
-  double sok,cok;
-  double ik;
-  double ikdot;
-  double sik,cik;
-  double rk;
-  double rkdot;
-  double xpk,ypk;
-  double xpkdot,ypkdot;
+    double mk;
+    double ek;
+    double ekold;
+    double ekdot;
+    double cek,sek;
+    double pk;
+    double pkdot;
+    double c2pk,s2pk;
+    double uk;
+    double ukdot;
+    double cuk,suk;
+    double ok;
+    double sok,cok;
+    double ik;
+    double ikdot;
+    double sik,cik;
+    double rk;
+    double rkdot;
+    double xpk,ypk;
+    double xpkdot,ypkdot;
 
-  double relativistic, OneMinusecosE, tmp;
+    double relativistic, OneMinusecosE, tmp;
 
-  tk = g.sec - eph.toe.sec;
+    tk = g.sec - eph.toe.sec;
 
-  if(tk>SECONDS_IN_HALF_WEEK)
-  tk -= SECONDS_IN_WEEK;
-  else if(tk<-SECONDS_IN_HALF_WEEK)
-  tk += SECONDS_IN_WEEK;
+    if(tk>SECONDS_IN_HALF_WEEK)
+      tk -= SECONDS_IN_WEEK;
+    else if(tk<-SECONDS_IN_HALF_WEEK)
+      tk += SECONDS_IN_WEEK;
 
-  mk = eph.m0 + eph.n*tk;
-  ek = mk;
-  ekold = ek + 1.0;
+    mk = eph.m0 + eph.n*tk;
+    ek = mk;
+    ekold = ek + 1.0;
 
-  OneMinusecosE = 0; // Suppress the uninitialized warning.
-  while(fabs(ek-ekold)>1.0E-14)
-  {
-    ekold = ek;
-    OneMinusecosE = 1.0-eph.ecc*cos(ekold);
-    ek = ek + (mk-ekold+eph.ecc*sin(ekold))/OneMinusecosE;
-  }
+    OneMinusecosE = 0; // Suppress the uninitialized warning.
+    while(fabs(ek-ekold)>1.0E-14)
+    {
+      ekold = ek;
+      OneMinusecosE = 1.0-eph.ecc*cos(ekold);
+      ek = ek + (mk-ekold+eph.ecc*sin(ekold))/OneMinusecosE;
+    }
 
-  sek = sin(ek);
-  cek = cos(ek);
+    sek = sin(ek);
+    cek = cos(ek);
 
-  ekdot = eph.n/OneMinusecosE;
+    ekdot = eph.n/OneMinusecosE;
 
-  relativistic = -4.442807633E-10*eph.ecc*eph.sqrta*sek;
+    relativistic = -4.442807633E-10*eph.ecc*eph.sqrta*sek;
 
-  pk = atan2(eph.sq1e2*sek,cek-eph.ecc) + eph.aop;
-  pkdot = eph.sq1e2*ekdot/OneMinusecosE;
+    pk = atan2(eph.sq1e2*sek,cek-eph.ecc) + eph.aop;
+    pkdot = eph.sq1e2*ekdot/OneMinusecosE;
 
-  s2pk = sin(2.0*pk);
-  c2pk = cos(2.0*pk);
+    s2pk = sin(2.0*pk);
+    c2pk = cos(2.0*pk);
 
-  uk = pk + eph.cus*s2pk + eph.cuc*c2pk;
-  suk = sin(uk);
-  cuk = cos(uk);
-  ukdot = pkdot*(1.0 + 2.0*(eph.cus*c2pk - eph.cuc*s2pk));
+    uk = pk + eph.cus*s2pk + eph.cuc*c2pk;
+    suk = sin(uk);
+    cuk = cos(uk);
+    ukdot = pkdot*(1.0 + 2.0*(eph.cus*c2pk - eph.cuc*s2pk));
 
-  rk = eph.A*OneMinusecosE + eph.crc*c2pk + eph.crs*s2pk;
-  rkdot = eph.A*eph.ecc*sek*ekdot + 2.0*pkdot*(eph.crs*c2pk - eph.crc*s2pk);
+    rk = eph.A*OneMinusecosE + eph.crc*c2pk + eph.crs*s2pk;
+    rkdot = eph.A*eph.ecc*sek*ekdot + 2.0*pkdot*(eph.crs*c2pk - eph.crc*s2pk);
 
-  ik = eph.inc0 + eph.idot*tk + eph.cic*c2pk + eph.cis*s2pk;
-  sik = sin(ik);
-  cik = cos(ik);
-  ikdot = eph.idot + 2.0*pkdot*(eph.cis*c2pk - eph.cic*s2pk);
+    ik = eph.inc0 + eph.idot*tk + eph.cic*c2pk + eph.cis*s2pk;
+    sik = sin(ik);
+    cik = cos(ik);
+    ikdot = eph.idot + 2.0*pkdot*(eph.cis*c2pk - eph.cic*s2pk);
 
-  xpk = rk*cuk;
-  ypk = rk*suk;
-  xpkdot = rkdot*cuk - ypk*ukdot;
-  ypkdot = rkdot*suk + xpk*ukdot;
+    xpk = rk*cuk;
+    ypk = rk*suk;
+    xpkdot = rkdot*cuk - ypk*ukdot;
+    ypkdot = rkdot*suk + xpk*ukdot;
 
-  ok = eph.omg0 + tk*eph.omgkdot - OMEGA_EARTH*eph.toe.sec;
-  sok = sin(ok);
-  cok = cos(ok);
+    ok = eph.omg0 + tk*eph.omgkdot - OMEGA_EARTH*eph.toe.sec;
+    sok = sin(ok);
+    cok = cos(ok);
 
-  pos[0] = xpk*cok - ypk*cik*sok;
-  pos[1] = xpk*sok + ypk*cik*cok;
-  pos[2] = ypk*sik;
+    pos[0] = xpk*cok - ypk*cik*sok;
+    pos[1] = xpk*sok + ypk*cik*cok;
+    pos[2] = ypk*sik;
 
-  tmp = ypkdot*cik - ypk*sik*ikdot;
+    tmp = ypkdot*cik - ypk*sik*ikdot;
 
-  vel[0] = -eph.omgkdot*pos[1] + xpkdot*cok - tmp*sok;
-  vel[1] = eph.omgkdot*pos[0] + xpkdot*sok + tmp*cok;
-  vel[2] = ypk*cik*ikdot + ypkdot*sik;
+    vel[0] = -eph.omgkdot*pos[1] + xpkdot*cok - tmp*sok;
+    vel[1] = eph.omgkdot*pos[0] + xpkdot*sok + tmp*cok;
+    vel[2] = ypk*cik*ikdot + ypkdot*sik;
 
-  // Satellite clock correction
-  tk = g.sec - eph.toc.sec;
+    // Satellite clock correction
+    tk = g.sec - eph.toc.sec;
 
-  if(tk>SECONDS_IN_HALF_WEEK)
-  tk -= SECONDS_IN_WEEK;
-  else if(tk<-SECONDS_IN_HALF_WEEK)
-  tk += SECONDS_IN_WEEK;
+    if(tk>SECONDS_IN_HALF_WEEK)
+      tk -= SECONDS_IN_WEEK;
+    else if(tk<-SECONDS_IN_HALF_WEEK)
+      tk += SECONDS_IN_WEEK;
 
-  clk[0] = eph.af0 + tk*(eph.af1 + tk*eph.af2) + relativistic - eph.tgd;
-  clk[1] = eph.af1 + 2.0*tk*eph.af2;
+    clk[0] = eph.af0 + tk*(eph.af1 + tk*eph.af2) + relativistic - eph.tgd;
+    clk[1] = eph.af1 + 2.0*tk*eph.af2;
 
-  return;
+    return;
 }
+
 
 /*! \brief Compute Subframe from Ephemeris
 *  \param[in] eph Ephemeris of given SV
@@ -1311,9 +1312,11 @@ void computeRange(range_t *rho, ephem_t eph, ionoutc_t *ionoutc, gpstime_t g, do
 
   // Receiver to satellite vector and light-time.
   subVect(los, pos, xyz);
+  //pesudorange
   tau = normVect(los)/SPEED_OF_LIGHT;
 
   // Extrapolate the satellite position backwards to the transmission time.
+  //estimate postion by velocity
   pos[0] -= vel[0]*tau;
   pos[1] -= vel[1]*tau;
   pos[2] -= vel[2]*tau;
@@ -1859,7 +1862,10 @@ int main(int argc, char *argv[])
     usage();
     exit(1);
   }
-
+  for (int i = 0; i < argc; i++)
+  {
+    printf("%s\n",argv[i]);
+  }
   while ((result=getopt(argc,argv,"e:u:g:k:l:o:s:b:T:t:d:v:i:m"))!=-1)
   {
     switch (result)
@@ -1934,8 +1940,8 @@ int main(int argc, char *argv[])
           t0.sec = (double)gmt->tm_sec;
 
           date2gps (&t0, &g0);
+          break;
         }
-        break;
       case 't':
         sscanf(optarg, "%d/%d/%d,%d:%d:%lf", &t0.y, &t0.m, &t0.d, &t0.hh, &t0.mm, &t0.sec);
         if (t0.y<=1980 || t0.m<1 || t0.m>12 || t0.d<1 || t0.d>31 ||
@@ -1973,6 +1979,8 @@ int main(int argc, char *argv[])
         break;
     }
   }
+  //enable ionospheric
+  ionoutc.enable = TRUE;
   ///////////////////////////////////////////////////////////
   // Communicate server
   ///////////////////////////////////////////////////////////
@@ -2215,27 +2223,27 @@ int main(int argc, char *argv[])
         }
       }
     }
-    else
-    {
-      if (subGpsTime(g0, gmin)<0.0 || subGpsTime(gmax, g0)<0.0)
-      {
-        printf("ERROR: Invalid start time.\n");
-        printf("tmin = %4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
-        tmin.y, tmin.m, tmin.d, tmin.hh, tmin.mm, tmin.sec,
-        gmin.week, gmin.sec);
-        printf("tmax = %4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
-        tmax.y, tmax.m, tmax.d, tmax.hh, tmax.mm, tmax.sec,
-        gmax.week, gmax.sec);
-        exit(1);
-      }
-    }
+    //--> Do not check time input
+//    else
+//    {
+//      if (subGpsTime(g0, gmin)<0.0 || subGpsTime(gmax, g0)<0.0)
+//      {
+//        printf("ERROR: Invalid start time.\n");
+//        printf("tmin = %4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
+//        tmin.y, tmin.m, tmin.d, tmin.hh, tmin.mm, tmin.sec,
+//        gmin.week, gmin.sec);
+//        printf("tmax = %4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
+//        tmax.y, tmax.m, tmax.d, tmax.hh, tmax.mm, tmax.sec,
+//        gmax.week, gmax.sec);
+//        exit(1);
+//      }
+//    }
   }
   else
   {
     g0 = gmin;
     t0 = tmin;
   }
-
   printf("Start time = %4d/%02d/%02d,%02d:%02d:%02.0f (%d:%.0f)\n",
       t0.y, t0.m, t0.d, t0.hh, t0.mm, t0.sec, g0.week, g0.sec);
   printf("Duration = %.1f [sec]\n", ((double)numd)/10.0);
@@ -2257,11 +2265,14 @@ int main(int argc, char *argv[])
         }
       }
     }
-
-  if (ieph>=0) // ieph has been set
-  break;
+    if (ieph>=0) // ieph has been set
+      break;
   }
-
+//--> If current time is greater than tmax -> using the latest eph set
+  if (subGpsTime(gmax,g0) < 0.0)
+  {
+    ieph = neph - 1;
+  }
   if (ieph == -1)
   {
     printf("ERROR: No current set of ephemerides has been found.\n");
