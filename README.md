@@ -25,26 +25,22 @@ Options:
 ```
 ###### Offline mode:
 ```
-./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o <outfile>
-e.g: ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o /tmp/streaming.bin
+./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o <outfile>
+e.g: ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o /tmp/streaming.bin
 
 ```
 ###### Note: outfile can be fifo
 ```
 mkfifo mystream
-./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o mystream
+./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o mystream
 ```
 ###### Online Mode (Synchronization):
 ```
-./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
-./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o /tmp/mystream
+./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
+./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o /tmp/mystream
 ```
-###### Online Mode (Synchronization):
 ```
-./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -T $(date +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
-e.g: ./gps-sdr-sim -e brdc0710.18n -k 172.20.10.3 -l 1.300519,103.7793489,15 -b 8 -t $(date +%Y/%m/%d,%H:%M:%S) -i -o /tmp/streaming.bin
-
-
-```
-###### Note: Server must open port "8080" to listen
+###### Note: 
+* Server must open port "8080" to listen. An example of server at [here](https://github.com/mtoan2111/gpssim_server.git)
+* Time input must be in UTC format YYYY/MM/DD,hh:mm:ss. The time input is not more than 4 hours compared to the latest time of ephemeris set.
 
