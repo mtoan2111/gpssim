@@ -2,7 +2,11 @@
 ### This project based on [Software-Defined GPS Signal Simulator Project](https://github.com/osqzss/gps-sdr-sim)
 ### How To Compile
 ```
-gcc gpssim.c -lm -lpthread -g -O3 -o gps-sdr-sim
+gcc gpssim.c -lm -lpthread -O3 -o gps-sdr-sim
+```
+Compile on Raspberry Pi 3
+```
+gcc gpssim.c -lm -lpthread -O3 -std=c11 -o gps-sdr-sim
 ```
 ### How To Use
 ###### Usage: gps-sdr-sim [options]
@@ -39,7 +43,10 @@ mkfifo mystream
 ./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
 ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o /tmp/mystream
 ```
-######  Note: 
+######  Note1: 
 * Server must open port "8080" to listen. An example of server at [here](https://github.com/mtoan2111/gpssim_server.git)
 * Time input must be in UTC format YYYY/MM/DD,hh:mm:ss. The time input is not more than 4 hours compared to the latest time of ephemeris set.
-
+###### Note2:
+* Regarding the Raspberry Pi 3, due to the limit of clock, you can conduct the experiment on that one by 2 ways:
+- Reduce the sample rate to ```1e6``` by using ```-s``` option
+- Reduce the number of channels by re-define the ```MAX_CHAN``` variable 
