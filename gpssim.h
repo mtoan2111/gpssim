@@ -46,6 +46,7 @@
 /*! \brief C/A code sequence length */
 #define CA_SEQ_LEN (1023)
 
+#define MAX_BUFF 1024
 #define SECONDS_IN_WEEK 604800.0
 #define SECONDS_IN_HALF_WEEK 302400.0
 #define SECONDS_IN_DAY 86400.0

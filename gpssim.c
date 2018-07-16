@@ -6,7 +6,7 @@
 */
 
 #define _CRT_SECURE_NO_DEPRECATE
-
+#define _POSIX_C_SOURCE  201112L
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,12 +28,15 @@
 //for socket
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
 //for pthread
 #include <pthread.h>
-
+#include <netdb.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 int sinTable512[] = {
 2,   5,   8,  11,  14,  17,  20,  23,  26,  29,  32,  35,  38,  41,  44,  47,
 50,  53,  56,  59,  62,  65,  68,  71,  74,  77,  80,  83,  86,  89,  91,  94,
@@ -1786,7 +1789,8 @@ int main(int argc, char *argv[])
   gpstime_t grx;
   double delt;
   int isamp;
-
+  
+  FILE *fd;
   int iumd;
   int numd;
   int mode;
@@ -1825,9 +1829,11 @@ int main(int argc, char *argv[])
   clock_t tstart,tend;
   FILE *fp;
   char outfile[MAX_CHAR];
+  char sv_fifo[MAX_CHAR];
   double samp_freq;
   double duration;
   int result;
+  int fifo = FALSE;
   int interactive = FALSE;
   int key;
   int key_direction;
@@ -1857,12 +1863,13 @@ int main(int argc, char *argv[])
     usage();
     exit(1);
   }
-  for (int i = 0; i < argc; i++)
+//  for (int i = 0; i < argc; i++)
+//  {
+//    printf("%s\n",argv[i]);
+//  }
+  while ((result=getopt(argc,argv,"e:u:g:l:k:f:s:o:b:T:t:i:v:m"))!=-1)
   {
-    printf("%s\n",argv[i]);
-  }
-  while ((result=getopt(argc,argv,"e:u:g:k:l:o:s:b:T:t:d:v:i:m"))!=-1)
-  {
+    printf("%d  ",result);
     switch (result)
     {
       case 'e':
@@ -1883,10 +1890,7 @@ int main(int argc, char *argv[])
         sscanf(optarg,"%lf,%lf,%lf",&llh[0],&llh[1],&llh[2]);
         llh[0] = llh[0] / R2D; // convert to RAD
         llh[1] = llh[1] / R2D; // convert to RAD
-        break;
-      case 'o':
-        strcpy(outfile, optarg);
-        break;
+        break; 
       case 'k':
         mode = 1;
         if (mode != 1)
@@ -1901,6 +1905,10 @@ int main(int argc, char *argv[])
           strcpy(server, optarg);
         }
         break;
+      case 'f':
+         strcpy(sv_fifo,optarg);
+         fifo = TRUE;
+         break;
       case 's':
         samp_freq = atof(optarg);
         if (samp_freq<1.0e6)
@@ -1909,12 +1917,17 @@ int main(int argc, char *argv[])
           exit(1);
         }
         break;
+      case 'o':
+        strcpy(outfile, optarg);
+        printf("%s", outfile);
+        break;
       case 'b':
         data_format = atoi(optarg);
         if (data_format!=SC01 && data_format!=SC08 && data_format!=SC16)
         {
           printf("ERROR: Invalid I/Q data format.\n");
           exit(1);
+
         }
         break;
       case 'T':
@@ -2092,27 +2105,37 @@ int main(int argc, char *argv[])
     // Static geodetic coordinates input mode: "-l"
     // Added by scateu@gmail.com
     printf("Using static location mode.\n");
-    if ((mode == 1) && (strlen(server) > 0))
+//    if ((mode == 1) && (strlen(server) > 0))
+//    {
+//      int ret = send(self_sock, "ok", sizeof("ok"), 0);
+//      if (ret == -1)
+//      {
+//        printf ("Error 7!: %s\n",strerror(errno));
+//        close(self_sock);
+//        return 0;
+//      }
+//      char first[100];
+//      ret = recv(self_sock, first, sizeof(first), 0);
+//      if (ret == -1)
+//      {
+//        printf ("Error 8!: %s\n",strerror(errno));
+//        close(self_sock);
+//        return 0;
+//      }
+//      else
+//      {
+//        sscanf(first,"%lf,%lf,%lf", &llh[0], &llh[1], &llh[2]);
+//      }
+// --> open fifo and read first coordinates
+    if (fifo)
     {
-      int ret = send(self_sock, "ok", sizeof("ok"), 0);
-      if (ret == -1)
+      if(NULL==(fd = fopen(sv_fifo,"rb")))
       {
-        printf ("Error 7!: %s\n",strerror(errno));
-        close(self_sock);
-        return 0;
+        printf("ERROR: Failed to open output file. \n");
       }
-      char first[100];
-      ret = recv(self_sock, first, sizeof(first), 0);
-      if (ret == -1)
-      {
-        printf ("Error 8!: %s\n",strerror(errno));
-        close(self_sock);
-        return 0;
-      }
-      else
-      {
-        sscanf(first,"%lf,%lf,%lf", &llh[0], &llh[1], &llh[2]);
-      }
+      char buff[MAX_BUFF];
+      fread (buff,39,1,fd);
+      sscanf(buff,"%lf,%lf,%lf", &llh[0], &llh[1], &llh[2]);
     }
     llh2xyz(llh,xyz[0]); // Convert llh to xyz
     //get first
@@ -2362,27 +2385,33 @@ int main(int argc, char *argv[])
     // Receive data from server
     //////////////////////////////////////////////////////////
     //---> Send OK to server
-    if ((mode == 1) && (strlen(server) > 0))
+//    if ((mode == 1) && (strlen(server) > 0))
+//    {
+//      char *ok = "OK";
+//      int ret = send(self_sock, ok, strlen(ok), 0);
+//      if (ret == -1)
+//      {
+//        printf ("Error 4!: %s\n", strerror(errno));
+//        close(self_sock);
+//        return 0;
+//      }
+//      //---> Wait utill server response coordinates
+//      char buff[1024];
+//      ret = recv(self_sock,buff,sizeof(buff),0);
+    if (fifo)
     {
-      char *ok = "OK";
-      int ret = send(self_sock, ok, strlen(ok), 0);
-      if (ret == -1)
-      {
-        printf ("Error 4!: %s\n", strerror(errno));
-        close(self_sock);
-        return 0;
-      }
-      //---> Wait utill server response coordinates
-      char buff[1024];
-      ret = recv(self_sock,buff,sizeof(buff),0);
-      if (ret > 0)
+      char buff[MAX_BUFF];
+      fread (buff,39,1,fd);
+      if (strlen(buff) > 30 )
       {
         //extract data
         double x1 = 0;
         double y1 = 0;
         double z1 = 0;
-        printf("%s\n",buff);
-        sscanf(buff, "%lf,%lf,%lf", &x1, &y1, &z1);
+        char tmp[40];
+        strncpy(tmp,buff,39);
+        //printf("%s",tmp); 
+        sscanf(tmp, "%lf,%lf,%lf", &x1, &y1, &z1);
         if ((x1 != 0) && (y1 != 0) && (z1 != 0))
         {
           xyz[iumd][0] = x1;
@@ -2393,6 +2422,7 @@ int main(int argc, char *argv[])
       }
       else
       {
+        continue;
         printf("Error 5!: %s\n", strerror(errno));
         close(self_sock);
         return 0;
