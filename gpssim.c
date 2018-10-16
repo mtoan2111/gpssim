@@ -2100,7 +2100,7 @@ int main(int argc, char *argv[])
     if (numd>iduration)
       numd = iduration;
   }
-  else
+  else if(fifo)
   {
     // Static geodetic coordinates input mode: "-l"
     // Added by scateu@gmail.com
@@ -2127,16 +2127,13 @@ int main(int argc, char *argv[])
 //        sscanf(first,"%lf,%lf,%lf", &llh[0], &llh[1], &llh[2]);
 //      }
 // --> open fifo and read first coordinates
-    if (fifo)
+    if(NULL==(fd = fopen(sv_fifo,"rb")))
     {
-      if(NULL==(fd = fopen(sv_fifo,"rb")))
-      {
-        printf("ERROR: Failed to open output file. \n");
-      }
-      char buff[MAX_BUFF];
-      fread (buff,39,1,fd);
-      sscanf(buff,"%lf,%lf,%lf", &llh[0], &llh[1], &llh[2]);
+      printf("ERROR: Failed to open output file. \n");
     }
+    char buff[MAX_BUFF];
+    fread (buff,39,1,fd);
+    sscanf(buff,"%lf,%lf,%lf", &llh[0], &llh[1], &llh[2]);
     llh2xyz(llh,xyz[0]); // Convert llh to xyz
     //get first
 
@@ -2148,6 +2145,21 @@ int main(int argc, char *argv[])
       xyz[iumd][1] = xyz[0][1];
       xyz[iumd][2] = xyz[0][2];
     }
+  }
+  else
+  {
+    llh2xyz(llh,xyz[0]); // Convert llh to xyz
+    //get first
+
+    numd = iduration;
+
+    for (iumd=1; iumd<numd; iumd++)
+    {
+      xyz[iumd][0] = xyz[0][0];
+      xyz[iumd][1] = xyz[0][1];
+      xyz[iumd][2] = xyz[0][2];
+    }
+
   }
 
 // Initialize the local tangential matrix for interactive mode
