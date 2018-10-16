@@ -24,6 +24,7 @@ Options:
   -b <iq_bits>     I/Q data format [1/8/16] (default: 16)
   -i               Interactive mode: North='w', South='s', East='d', West='a'
   -v               Show details about simulated channels
+  -f <Pipe>        Listening location from server
   -m <0,1>         Running Mode: Offline: 0, Online: 1
   -k <address>     Server address, Port 8080
 ```
@@ -35,16 +36,17 @@ e.g: ./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u 
 ```
 ###### Note: outfile can be fifo
 ```
-mkfifo mystream
-./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o mystream
+mkfifo outstream
+./gps-sdr-sim -e brdcXXXX.18n -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o outstream
 ```
 ###### Online Mode (Synchronization):
 ```
-./gps-sdr-sim -e brdcXXXX.18n -k <server_addr> -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
-./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o /tmp/mystream
+mkfifo instream
+./gps-sdr-sim -e brdcXXXX.18n -f <pipe> -l <lat,long,height> -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -i -o <output_file>
+./gps-sdr-sim -e brdc0710.18n -l 1.300519,103.7793489,15 -b 8 -t $(date -u +%Y/%m/%d,%H:%M:%S) -f instream -i -o /tmp/mystream
 ```
 ######  Note1: 
-* Server must open port "8080" to listen. An example of server at [here](https://github.com/mtoan2111/gpssim_server.git)
+* Server must open the "pipe" to send the locations to client. An example of server at [here](https://github.com/mtoan2111/gpssim_server.git)
 * Time input must be in UTC format YYYY/MM/DD,hh:mm:ss. The time input is not more than 4 hours compared to the latest time of ephemeris set.
 ###### Note2:
 * Regarding the Raspberry Pi 3, due to the limit of clock, you can conduct the experiment on that one by 2 ways:
