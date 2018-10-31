@@ -1869,7 +1869,6 @@ int main(int argc, char *argv[])
 //  }
   while ((result=getopt(argc,argv,"e:u:g:l:k:f:s:o:b:T:t:i:v:m"))!=-1)
   {
-    printf("%d  ",result);
     switch (result)
     {
       case 'e':
@@ -1919,7 +1918,6 @@ int main(int argc, char *argv[])
         break;
       case 'o':
         strcpy(outfile, optarg);
-        printf("%s", outfile);
         break;
       case 'b':
         data_format = atoi(optarg);
@@ -2032,7 +2030,7 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
-  if (umfile[0]==0 && !staticLocationMode)
+  if (umfile[0]==0 && !staticLocationMode && !fifo)
   {
     printf("ERROR: User motion file / NMEA GGA stream is not specified.\n");
     printf("You may use -l to specify the static location directly.\n");
@@ -2074,37 +2072,11 @@ int main(int argc, char *argv[])
       exit(1);
     }
   }
-
-  if (!staticLocationMode)
-  {
-    // Read user motion file
-    if (nmeaGGA==TRUE)
-      numd = readNmeaGGA(xyz, umfile);
-    else
-    {
-      numd = readUserMotion(xyz, umfile);
-    }
-
-    if (numd==-1)
-    {
-      printf("ERROR: Failed to open user motion / NMEA GGA file.\n");
-      exit(1);
-    }
-    else if (numd==0)
-    {
-      printf("ERROR: Failed to read user motion / NMEA GGA data.\n");
-      exit(1);
-    }
-
-    // Set simulation duration
-    if (numd>iduration)
-      numd = iduration;
-  }
-  else if(fifo)
+  if(fifo)
   {
     // Static geodetic coordinates input mode: "-l"
     // Added by scateu@gmail.com
-    printf("Using static location mode.\n");
+    printf("Using synchronization mode.\n");
 //    if ((mode == 1) && (strlen(server) > 0))
 //    {
 //      int ret = send(self_sock, "ok", sizeof("ok"), 0);
@@ -2146,8 +2118,36 @@ int main(int argc, char *argv[])
       xyz[iumd][2] = xyz[0][2];
     }
   }
+  else if (!staticLocationMode)
+  {
+    // Read user motion file
+    if (nmeaGGA==TRUE)
+      numd = readNmeaGGA(xyz, umfile);
+    else
+    {
+      numd = readUserMotion(xyz, umfile);
+    }
+
+    if (numd==-1)
+    {
+      printf("ERROR: Failed to open user motion / NMEA GGA file.\n");
+      exit(1);
+    }
+    else if (numd==0)
+    {
+      printf("ERROR: Failed to read user motion / NMEA GGA data.\n");
+      exit(1);
+    }
+
+    // Set simulation duration
+    if (numd>iduration)
+      numd = iduration;
+  }
   else
   {
+    // Static geodetic coordinates input mode: "-l"
+    // Added by scateu@gmail.com
+    printf("Using static location mode.\n");
     llh2xyz(llh,xyz[0]); // Convert llh to xyz
     //get first
 
